@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Códigos Legislativos - Novo Horizonte</title>
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --accent:#0ea5a4; --muted:#94a3b8; --text:#e6eef6;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background:linear-gradient(180deg,#071028 0%, #081226 100%);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    header{
+      padding:28px 20px;
+      text-align:center;
+      border-bottom:1px solid rgba(255,255,255,0.03);
+      background:linear-gradient(90deg, rgba(2,6,23,0.6), rgba(2,20,36,0.2));
+      backdrop-filter: blur(6px);
+    }
+    header h1{margin:0;font-size:20px;letter-spacing:0.4px}
+    header p{margin:6px 0 0;color:var(--muted);font-size:13px}
+
+    nav{
+      display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:12px 10px;
+      background:transparent;
+    }
+    .btn{
+      background:transparent;border:1px solid rgba(255,255,255,0.04);
+      color:var(--text);padding:10px 14px;border-radius:8px;font-weight:600;font-size:13px;
+      text-decoration:none;cursor:pointer;
+    }
+    .btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.5)}
+    main{max-width:1100px;margin:26px auto;padding:0 18px}
+    section h2{color:var(--accent);margin:22px 0 12px;font-size:18px}
+    .preambulo{background:linear-gradient(180deg, rgba(14,165,164,0.04), transparent);padding:16px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:12px}
+    .card{background:var(--card);padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+    .artigo-title{font-weight:700;color:#d1f4f1}
+    .artigo-desc{margin-top:8px;color:var(--muted);font-size:14px;line-height:1.45}
+    footer{max-width:1100px;margin:40px auto 60px;padding:8px 18px;color:var(--muted);text-align:center;font-size:13px}
+
+    .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:10px}
+    input[type="search"]{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px 10px;border-radius:8px;color:var(--text)}
+    .muted{color:var(--muted);font-size:13px}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.02);font-weight:600;color:var(--muted);font-size:13px}
+    @media (max-width:600px){ header h1{font-size:17px} }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Casa Civil — Subchefia para Assuntos Jurídicos</h1>
+    <p><strong>CÓDIGOS LEGISLATIVOS DO ESTADO DE NOVO HORIZONTE</strong></p>
+  </header>
+
+  <nav>
+    <button class="btn" onclick="scrollToId('preambulo')">Preâmbulo</button>
+    <button class="btn" onclick="scrollToId('cp')">Código Penal (CP)</button>
+    <button class="btn" onclick="scrollToId('ctb')">Código de Trânsito (CTB)</button>
+    <button class="btn" onclick="toggleMode()">Alternar Modo</button>
+  </nav>
+
+  <main>
+    <section id="preambulo">
+      <h2>Preâmbulo</h2>
+      <div class="preambulo card">
+        <p>
+          Nós, representantes do povo brasileiro, necessitamos de algo que descreva o crime e suas consequências.
+          O Delegado Geral do Estado de <strong>Novo Horizonte</strong> decidiu aplicar os próprios códigos legislativos em prática
+          na data de <strong>13 de agosto de 2025</strong>: Código Penal (CP) e Código de Trânsito Brasileiro (CTB).
+        </p>
+      </div>
+    </section>
+
+    <section id="cp">
+      <h2>📘 Código Penal (CP) — Novo Horizonte</h2>
+
+      <div class="controls">
+        <span class="pill">Artigos carregados: <span id="countLoaded">0</span> / 300</span>
+        <input id="search" type="search" placeholder="Buscar art. (ex: 'furto' ou 'Art. 1')" oninput="renderArticles()" />
+      </div>
+
+      <div id="articles" class="grid" aria-live="polite" style="margin-top:14px"></div>
+    </section>
+
+    <section id="ctb">
+      <h2>🚦 Código de Trânsito Brasileiro (CTB)</h2>
+
+      <div class="grid" id="ctbGrid"></div>
+    </section>
+  </main>
+
+  <footer>
+    © 2025 — Estado de Novo Horizonte | Documento de uso interno de RP. Penalidades em "minutos" representam medida de prisão temporária no ambiente RP.
+  </footer>
+
+  <script>
+    // ================= Função para minutos aleatórios
+    function aleatorioMinMax(min, max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+    // ================= Código Penal (exemplo reduzido para simplificação)
+    const customArticles = [
+      {id:1, title:"Matar alguém", desc:`Pena - ${aleatorioMinMax(30,80)} minutos + multa viável de R$ 30.000.`},
+      {id:2, title:"Furto", desc:`Subtrair coisa alheia móvel. Pena - ${aleatorioMinMax(10,60)} minutos.`},
+      {id:3, title:"Assalto à mão armada", desc:`Pena - ${aleatorioMinMax(30,80)} minutos e indenização à vítima.`},
+      {id:4, title:"Estelionato", desc:`Vantagem ilícita por artifício/fraude. Pena - ${aleatorioMinMax(10,60)} minutos.`},
+      {id:5, title:"Destruir/ocultar documento", desc:`Pena - ${aleatorioMinMax(30,80)} minutos.`},
+    ];
+
+    const totalTarget = 300;
+    let articles = [...customArticles];
+    let nextId = articles.length + 1;
+    const extraCrimeTemplates = [
+      {title:"Crime contra a vida (homicídio culposo)", desc:"Pena - 30 minutos."},
+      {title:"Crime contra o patrimônio (receptação)", desc:"Pena - 20 minutos."},
+      {title:"Crime contra a administração pública (prevaricação)", desc:"Pena - 25 minutos."},
+    ];
+
+    while(articles.length<totalTarget){
+      const tpl = extraCrimeTemplates[(nextId-1)%extraCrimeTemplates.length];
+      const variation = (Math.floor(nextId/extraCrimeTemplates.length)%6)+1;
+      articles.push({
+        id:nextId,
+        title:`${tpl.title} — variação ${variation}`,
+        desc: tpl.desc.replace("30",""+aleatorioMinMax(5,80)) + ` (Artigo gerado automaticamente: ${nextId}).`
+      });
+      nextId++;
+    }
+
+    const articlesContainer = document.getElementById('articles');
+    const countLoaded = document.getElementById('countLoaded');
+    const searchInput = document.getElementById('search');
+
+    function renderArticles(){
+      const q = searchInput.value.trim().toLowerCase();
+      articlesContainer.innerHTML = '';
+      let shown = 0;
+      for (const art of articles){
+        const text = (`art ${art.id} ${art.title} ${art.desc}`).toLowerCase();
+        if(q && !text.includes(q)) continue;
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `<div class="artigo-title">Art. ${art.id} — ${escapeHtml(art.title)}</div>
+                          <div class="artigo-desc">${escapeHtml(art.desc)}</div>`;
+        articlesContainer.appendChild(card);
+        shown++;
+      }
+      countLoaded.textContent = shown;
+      if(shown===0){ articlesContainer.innerHTML = '<div class="muted card">Nenhum artigo encontrado para a busca.</div>'; }
+    }
+
+    function escapeHtml(str){ return String(str).replace(/[&<>"']/g, s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
+
+    // ================= CTB atualizado com 50 artigos
+    const ctbList = [
+      {id:1, title:"Omissão de socorro em acidente", desc:`Pena - ${aleatorioMinMax(50,80)} minutos + indenização à vítima + veículo apreendido.`},
+      {id:2, title:"Colisão e fuga", desc:`Pena - ${aleatorioMinMax(5,50)} minutos + indenização.`},
+      {id:3, title:"Grau em motocicleta", desc:`Pena - ${aleatorioMinMax(10,60)} minutos + apreensão da motocicleta.`},
+      {id:4, title:"Menor conduzindo veículo", desc:"Multa de R$ 1.000 a R$ 2.500."},
+      {id:5, title:"Dirigir sob efeito de drogas/álcool", desc:`Pena - ${aleatorioMinMax(20,60)} minutos + multa de R$ 30.000 + apreensão do veículo.`},
+      {id:6, title:"Excesso de velocidade", desc:"Multa de R$ 4.000 a R$ 10.000."},
+      {id:7, title:"Desrespeitar faixa de pedestres", desc:"Multa de R$ 10.000."},
+      {id:8, title:"Não dar passagem a emergência", desc:`Pena - ${aleatorioMinMax(30,70)} minutos + multa de R$ 50.000 + apreensão do veículo.`},
+      {id:9, title:"Estacionar em local proibido", desc:"Multa de R$ 1.000 a R$ 3.500."},
+      {id:10, title:"Fuga de ordem de parada", desc:`Pena - ${aleatorioMinMax(15,50)} minutos + apreensão do veículo.`},
+      {id:11, title:"Dirigir sem habilitação", desc:`Pena - ${aleatorioMinMax(20,40)} minutos + multa de R$ 15.000 + apreensão do veículo.`},
+      {id:12, title:"Participar de racha/corrida ilegal", desc:`Pena - ${aleatorioMinMax(40,70)} minutos + multa de R$ 25.000 + apreensão do veículo.`},
+      {id:13, title:"Transitar na contramão", desc:`Pena - ${aleatorioMinMax(15,30)} minutos + multa de R$ 8.000.`},
+      {id:14, title:"Avançar sinal vermelho", desc:`Pena - ${aleatorioMinMax(10,25)} minutos + multa de R$ 5.000.`},
+      {id:15, title:"Conduzir veículo sem placa", desc:`Pena - ${aleatorioMinMax(20,40)} minutos + multa de R$ 10.000 + apreensão do veículo.`},
+      {id:16, title:"Dirigir com CNH vencida", desc:"Multa de R$ 3.000 a R$ 7.000."},
+      {id:17, title:"Transportar carga perigosa sem autorização", desc:`Pena - ${aleatorioMinMax(30,60)} minutos + multa de R$ 20.000.`},
+      {id:18, title:"Conduzir motocicleta sem capacete", desc:`Pena - ${aleatorioMinMax(10,20)} minutos + multa de R$ 5.000.`},
+      {id:19, title:"Usar celular ao volante", desc:`Pena - ${aleatorioMinMax(10,25)} minutos + multa de R$ 7.000.`},
+      {id:20, title:"Não usar cinto de segurança", desc:"Multa de R$ 3.000."},
+      {id:21, title:"Bloquear via pública sem autorização", desc:`Pena - ${aleatorioMinMax(15,30)} minutos + multa de R$ 8.000.`},
+      {id:22, title:"Conduzir veículo com defeito mecânico grave", desc:`Pena - ${aleatorioMinMax(10,20)} minutos + apreensão do veículo.`},
+      {id:23, title:"Estacionar em vaga para deficientes", desc:"Multa de R$ 10.000."},
+      {id:24, title:"Dirigir com faróis apagados à noite", desc:"Multa de R$ 5.000."},
+      {id:25, title:"Transportar passageiros em compartimento de carga", desc:`Pena - ${aleatorioMinMax(15,30)} minutos + multa de R$ 8.000.`},
+      {id:26, title:"Ultrapassagem em local proibido", desc:`Pena - ${aleatorioMinMax(15,35)} minutos + multa de R$ 7.000.`},
+      {id:27, title:"Conduzir veículo não licenciado", desc:`Pena - ${aleatorioMinMax(15,30)} minutos + apreensão do veículo.`},
+      {id:28, title:"Derramar carga na via pública", desc:`Pena - ${aleatorioMinMax(10,25)} minutos + multa de R$ 6.000.`},
+      {id:29, title:"Conduzir veículo com vidros totalmente escurecidos", desc:"Multa de R$ 4.000 + remoção da película."},
+      {id:30, title:"Realizar manobras perigosas", desc:`Pena - ${aleatorioMinMax(20,40)} minutos + multa de R$ 10.000.`},
+      {id:31, title:"Trafegar em área de pedestres", desc:`Pena - ${aleatorioMinMax(15,30)} minutos + multa de R$ 8.000.`},
+      {id:32, title:"Conduzir veículo com escapamento adulterado", desc:"Multa de R$ 5.000 + apreensão do veículo."},
+      {id:33, title:"Não prestar informações em acidente", desc:`Pena - ${aleatorioMinMax(20,40)} minutos + multa de R$ 10.000.`},
+      {id:34, title:"Dirigir com CNH de categoria incompatível", desc:`Pena - ${aleatorioMinMax(15,30)} minutos + multa de R$ 8.000.`},
+      {id:35, title:"Transportar criança sem cadeirinha", desc:"Multa de R$ 7.000."},
+      {id:36, title:"Conduzir veículo com carga excedente", desc:"Multa de R$ 8.000 + apreensão do veículo."},
+      {id:37, title:"Não reduzir velocidade em área escolar", desc:`Pena - ${aleatorioMinMax(15,30)} minutos + multa de R$ 10.000.`},
+      {id:38, title:"Conduzir veículo emitindo poluição excessiva", desc:"Multa de R$ 5.000 + apreensão do veículo."},
+      {id:39, title:"Parar sobre faixa de pedestres", desc:"Multa de R$ 4.000."},
+      {id:40, title:"Conduzir veículo com inscrições/adesivos que comprometam visibilidade", desc:"Multa de R$ 3.000."}
+    ];
+
+    function renderCTB(){
+      const grid = document.getElementById('ctbGrid');
+      grid.innerHTML = '';
+      for(const c of ctbList){
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `<div class="artigo-title">Art. ${c.id} — ${escapeHtml(c.title)}</div>
+                         <div class="artigo-desc">${escapeHtml(c.desc)}</div>`;
+        grid.appendChild(div);
+      }
+    }
+
+    renderArticles();
+    renderCTB();
+
+    function scrollToId(id){document.getElementById(id).scrollIntoView({behavior:'smooth', block:'start'});}
+    window.scrollToId = scrollToId;
+
+    function toggleMode(){
+      const root = document.documentElement;
+      if(root.style.getPropertyValue('--bg')==='#0f1724' || !root.style.getPropertyValue('--bg')){
+        root.style.setProperty('--bg','#f4f4f4'); root.style.setProperty('--card','#ffffff'); root.style.setProperty('--accent','#00509e');
+        root.style.setProperty('--muted','#6b7280'); root.style.setProperty('--text','#0b1220'); document.body.style.background='linear-gradient(180deg,#ffffff 0%, #f4f6f8 100%)';
+      } else {
+        root.style.setProperty('--bg','#0f1724'); root.style.setProperty('--card','#0b1220'); root.style.setProperty('--accent','#0ea5a4');
+        root.style.setProperty('--muted','#94a3b8'); root.style.setProperty('--text','#e6eef6'); document.body.style.background='linear-gradient(180deg,#071028 0%, #081226 100%)';
+      }
+    }
+    window.toggleMode = toggleMode;
+    window.renderArticles = renderArticles;
+    searchInput.focus();
+  </script>
+</body>
+</html>
